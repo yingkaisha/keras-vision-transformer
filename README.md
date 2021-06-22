@@ -1,3 +1,5 @@
-# Swin Transformer
+# swin-transformer-keras
 
-The Tensorflow, Keras implementation of Swin-Transformer
+This repository contains demonstrations of the Swin Transformer in `tensorflow.keras`.
+
+
