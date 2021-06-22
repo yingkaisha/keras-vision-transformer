@@ -25,3 +25,6 @@ The work is benefited from:
 * Swin-Transformer-TF [[link](https://github.com/rishigami/Swin-Transformer-TF)].
 
 
+# License
+
+[MIT License](https://github.com/yingkaisha/swin_transformer_keras/blob/main/LICENSE)
