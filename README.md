@@ -1,5 +1,5 @@
 # swin-transformer-keras
 
-This repository contains demonstrations of the Swin Transformer in `tensorflow.keras`.
+This repository contains the `tensorflow.keras` implementation of the Swin Transformer and its demonstrations under benchmark datasets.
 
 
