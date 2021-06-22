@@ -2,9 +2,9 @@
 
 This repository contains the `tensorflow.keras` implementation of the Swin Transformer and its demonstrations under benchmark datasets.
 
-# Demonstrations
+# Notebooks
 
-Swin Transformer example with the MNIST dataset [[link](https://github.com/yingkaisha/swin_transformer_keras/blob/main/Swin_Transformer_MNIST.ipynb)].
+* Swin Transformer example with the MNIST dataset [[link](https://github.com/yingkaisha/swin_transformer_keras/blob/main/Swin_Transformer_MNIST.ipynb)].
 
 # Dependencies
 
