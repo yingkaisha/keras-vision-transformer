@@ -14,7 +14,7 @@ Swin Transformer example with the MNIST dataset [[link](https://github.com/yingk
 
 Swin Transformers (Liu et al., 2021) are Transformer-based computer vision models that feature shifted window-based self-attention. Compared to other vision transformer variants that compute embedded patches (i.e., tokens) globally, the Swin Transformer computes a subset of tokens through non-overlapping windows that are alternatively shifted within Transformer blocks. This mechanism makes Swin Transformers more suitable for processing high-resolution images. Swin Transformers are found effective in image classification, object detection, and semantic segmentation problems.
 
-* Liu, Z., Lin, Y., Cao, Y., Hu, H., Wei, Y., Zhang, Z., Lin, S. and Guo, B., 2021. Swin transformer: Hierarchical vision transformer using shifted windows. arXiv preprint arXiv:2103.14030. https://arxiv.org/abs/2103.14030
+* Liu, Z., Lin, Y., Cao, Y., Hu, H., Wei, Y., Zhang, Z., Lin, S. and Guo, B., 2021. Swin transformer: Hierarchical vision transformer using shifted windows. arXiv preprint arXiv:2103.14030. https://arxiv.org/abs/2103.14030.
 
 # Contact
 
