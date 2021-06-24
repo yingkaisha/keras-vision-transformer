@@ -1,4 +1,4 @@
-# vision-transformer-keras
+# keras-vision-transformer
 
 This repository contains the `tensorflow.keras` implementation of the Swin Transformer (Liu et al., 2021) and its applications to benchmark datasets.
 
