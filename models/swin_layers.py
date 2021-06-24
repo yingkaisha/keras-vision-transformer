@@ -7,7 +7,15 @@ from tensorflow.keras.layers import Dense, Dropout, Conv2D, LayerNormalization, 
 from tensorflow.keras.activations import softmax
 
 def window_partition(x, window_size):
+    '''
+    Extract patches from the given tensor.
     
+    Input
+    ----------
+        x: a four-dimensional tensor to be extracted; shape=(Sample, Height, Width, Channel) 
+        window_size: the pixel size of extracted patches.
+        
+    '''
     # Get the static shape of the input tensor
     # (Sample, Height, Width, Channel)
     _, H, W, C = x.get_shape().as_list()
@@ -24,7 +32,16 @@ def window_partition(x, window_size):
     return windows
 
 def window_reverse(windows, window_size, H, W, C):
+    '''
+    Merge patches to the full feature map size
     
+    Input
+    ----------
+        windows: a sequence of patches produced by `window_partition`
+        window_size: the pixel size of extracted patches.
+        H, W, C: the height, width, and channel of the full-size feature map
+        
+    '''
     # Reshape a patch sequence to aligned patched 
     patch_num_H = H//window_size
     patch_num_W = W//window_size
@@ -37,7 +54,10 @@ def window_reverse(windows, window_size, H, W, C):
     return x
 
 def drop_path_(inputs, drop_prob, is_training):
-    
+    '''
+    Randomly zero-out tensor elements of the main path 
+    before it is added to the skip connection path.
+    '''
     # Bypass in non-training mode
     if (not is_training) or (drop_prob == 0.):
         return inputs
@@ -64,6 +84,19 @@ class DropPath(tf.keras.layers.Layer):
         return drop_path_(x, self.drop_prob, training)
 
 class Mlp(tf.keras.layers.Layer):
+    '''
+    Stacked two MLP layers within the Swin Transformer block.
+    The first MLP layer has flexible number of nodes and nonlinear activation.
+    The second MLP layer is a linear projection to the embedded dimensions.
+    
+    Input
+    ----------
+        filter_num: a list of two elements that are corresponded to the number of nodes.
+        drop: dropout probability; dropout is applied after each MLP layer.
+        
+    *Activation function is fixed to GELU
+    '''
+    
     def __init__(self, filter_num, drop=0., prefix=''):
         
         super().__init__()
@@ -90,6 +123,10 @@ class Mlp(tf.keras.layers.Layer):
         return x
 
 class PatchEmbed(tf.keras.layers.Layer):
+    '''
+    Embed patches as a sequence of tokens.
+    
+    '''
     def __init__(self, patch_size=(4, 4), embed_dim=96):
         super().__init__(name='PatchEmbed')
 
@@ -109,6 +146,11 @@ class PatchEmbed(tf.keras.layers.Layer):
         return x
     
 class PatchMerging(tf.keras.layers.Layer):
+    '''
+    Downsample patches, reduce the number of patches/tokens to half, 
+    and double their embedded dimensions.
+    '''
+    
     def __init__(self, num_patch, dim, prefix=''):
         super().__init__()
         
@@ -149,6 +191,8 @@ class PatchMerging(tf.keras.layers.Layer):
         return x
     
 class WindowAttention(tf.keras.layers.Layer):
+    '''
+    '''
     def __init__(self, dim, window_size, num_heads, qkv_bias=True, qk_scale=None, attn_drop=0, proj_drop=0., prefix=''):
         super().__init__()
         
