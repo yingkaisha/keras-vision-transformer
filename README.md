@@ -1,4 +1,4 @@
-# swin-transformer-keras
+# vision-transformer-keras
 
 This repository contains the `tensorflow.keras` implementation of the Swin Transformer (Liu et al., 2021) and its applications to benchmark datasets.
 
@@ -6,7 +6,7 @@ This repository contains the `tensorflow.keras` implementation of the Swin Trans
 
 # Notebooks
 
-* Swin Transformer example with the MNIST dataset [[link](https://github.com/yingkaisha/swin_transformer_keras/blob/main/Swin_Transformer_MNIST.ipynb)].
+* MNIST image classification with Swin Transformers [[link](https://github.com/yingkaisha/vision_transformer_keras/blob/main/examples/Swin_Transformer_MNIST.ipynb)].
 
 # Dependencies
 
