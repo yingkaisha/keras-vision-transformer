@@ -3,7 +3,7 @@ from __future__ import absolute_import
 
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, Dropout, Conv2D, LayerNormalization, GlobalAveragePooling1D
+from tensorflow.keras.layers import Dense, Dropout, Conv2D, LayerNormalization
 from tensorflow.keras.activations import softmax
 
 def window_partition(x, window_size):
@@ -36,41 +36,16 @@ def window_reverse(windows, window_size, H, W, C):
     
     return x
 
-def drop_path_(inputs, drop_prob, is_training):
-    
-    # Bypass in non-training mode
-    if (not is_training) or (drop_prob == 0.):
-        return inputs
 
-    # Compute keep_prob
-    keep_prob = 1.0 - drop_prob
-
-    # Compute drop_connect tensor
-    input_shape = tf.shape(inputs)
-    batch_num = input_shape[0]; rank = len(input_shape)
-    
-    shape = (batch_num,) + (1,) * (rank - 1)
-    random_tensor = keep_prob + tf.random.uniform(shape, dtype=inputs.dtype)
-    path_mask = tf.floor(random_tensor)
-    output = tf.math.divide(inputs, keep_prob) * path_mask
-    return output
-
-class DropPath(tf.keras.layers.Layer):
-    def __init__(self, drop_prob=None):
-        super().__init__()
-        self.drop_prob = drop_prob
-
-    def call(self, x, training=None):
-        return drop_path_(x, self.drop_prob, training)
 
 class Mlp(tf.keras.layers.Layer):
-    def __init__(self, filter_num, drop=0., prefix=''):
+    def __init__(self, filter_num, drop=0., name=''):
         
         super().__init__()
         
         # MLP layers
-        self.fc1 = Dense(filter_num[0], name='{}_mlp_0'.format(prefix))
-        self.fc2 = Dense(filter_num[1], name='{}_mlp_1'.format(prefix))
+        self.fc1 = Dense(filter_num[0], name='{}_mlp_0'.format(name))
+        self.fc2 = Dense(filter_num[1], name='{}_mlp_1'.format(name))
         
         # Dropout layer
         self.drop = Dropout(drop)
@@ -90,7 +65,7 @@ class Mlp(tf.keras.layers.Layer):
         return x
 
 class WindowAttention(tf.keras.layers.Layer):
-    def __init__(self, dim, window_size, num_heads, qkv_bias=True, qk_scale=None, attn_drop=0, proj_drop=0., prefix=''):
+    def __init__(self, dim, window_size, num_heads, qkv_bias=True, qk_scale=None, attn_drop=0, proj_drop=0., name=''):
         super().__init__()
         
         self.dim = dim # number of input dimensions
@@ -100,19 +75,19 @@ class WindowAttention(tf.keras.layers.Layer):
         head_dim = dim // num_heads
         self.scale = qk_scale or head_dim ** -0.5 # query scaling factor
         
-        self.prefix = prefix
+        self.name = name
         
         # Layers
-        self.qkv = Dense(dim * 3, use_bias=qkv_bias, name='{}_attn_qkv'.format(self.prefix))
+        self.qkv = Dense(dim * 3, use_bias=qkv_bias, name='{}_attn_qkv'.format(self.name))
         self.attn_drop = Dropout(attn_drop)
-        self.proj = Dense(dim, name='{}_attn_proj'.format(self.prefix))
+        self.proj = Dense(dim, name='{}_attn_proj'.format(self.name))
         self.proj_drop = Dropout(proj_drop)
 
     def build(self, input_shape):
         
         # zero initialization
         num_window_elements = (2*self.window_size[0] - 1) * (2*self.window_size[1] - 1)
-        self.relative_position_bias_table = self.add_weight('{}_attn_pos'.format(self.prefix),
+        self.relative_position_bias_table = self.add_weight('{}_attn_pos'.format(self.name),
                                                             shape=(num_window_elements, self.num_heads),
                                                             initializer=tf.initializers.Zeros(), trainable=True)
         
@@ -131,7 +106,7 @@ class WindowAttention(tf.keras.layers.Layer):
         
         # convert to the tf variable
         self.relative_position_index = tf.Variable(
-            initial_value=tf.convert_to_tensor(relative_position_index), trainable=False, name='{}_attn_pos_ind'.format(self.prefix))
+            initial_value=tf.convert_to_tensor(relative_position_index), trainable=False, name='{}_attn_pos_ind'.format(self.name))
         
         self.built = True
 
@@ -188,7 +163,7 @@ class WindowAttention(tf.keras.layers.Layer):
 
 class SwinTransformerBlock(tf.keras.layers.Layer):
     def __init__(self, dim, num_patch, num_heads, window_size=7, shift_size=0, mlp_num=1024,
-                 qkv_bias=True, qk_scale=None, mlp_drop=0, attn_drop=0, proj_drop=0, drop_path_prob=0, prefix=''):
+                 qkv_bias=True, qk_scale=None, mlp_drop=0, attn_drop=0, proj_drop=0, drop_path_prob=0, name=''):
         super().__init__()
         
         self.dim = dim # number of input dimensions
@@ -197,15 +172,15 @@ class SwinTransformerBlock(tf.keras.layers.Layer):
         self.window_size = window_size # size of window
         self.shift_size = shift_size # size of window shift
         self.mlp_num = mlp_num # number of MLP nodes
-        self.prefix = prefix
+        self.name = name
         
         # Layers
-        self.norm1 = LayerNormalization(epsilon=1e-5, name='{}_norm1'.format(self.prefix))
+        self.norm1 = LayerNormalization(epsilon=1e-5, name='{}_norm1'.format(self.name))
         self.attn = WindowAttention(dim, window_size=(self.window_size, self.window_size), num_heads=num_heads,
-                                    qkv_bias=qkv_bias, qk_scale=qk_scale, attn_drop=attn_drop, proj_drop=proj_drop, prefix=self.prefix)
+                                    qkv_bias=qkv_bias, qk_scale=qk_scale, attn_drop=attn_drop, proj_drop=proj_drop, name=self.name)
         self.drop_path = DropPath(drop_path_prob)
-        self.norm2 = LayerNormalization(epsilon=1e-5, name='{}_norm2'.format(self.prefix))
-        self.mlp = Mlp([mlp_num, dim], drop=mlp_drop, prefix=self.prefix)
+        self.norm2 = LayerNormalization(epsilon=1e-5, name='{}_norm2'.format(self.name))
+        self.mlp = Mlp([mlp_num, dim], drop=mlp_drop, name=self.name)
         
         # Assertions
         assert 0 <= self.shift_size, 'shift_size >= 0 is required'
@@ -240,7 +215,7 @@ class SwinTransformerBlock(tf.keras.layers.Layer):
             attn_mask = tf.expand_dims(mask_windows, axis=1) - tf.expand_dims(mask_windows, axis=2)
             attn_mask = tf.where(attn_mask != 0, -100.0, attn_mask)
             attn_mask = tf.where(attn_mask == 0, 0.0, attn_mask)
-            self.attn_mask = tf.Variable(initial_value=attn_mask, trainable=False, name='{}_attn_mask'.format(self.prefix))
+            self.attn_mask = tf.Variable(initial_value=attn_mask, trainable=False, name='{}_attn_mask'.format(self.name))
         else:
             self.attn_mask = None
 
