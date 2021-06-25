@@ -6,7 +6,8 @@ This repository contains the `tensorflow.keras` implementation of the Swin Trans
 
 # Notebooks
 
-* MNIST image classification with Swin Transformers [[link](https://github.com/yingkaisha/vision_transformer_keras/blob/main/examples/Swin_Transformer_MNIST.ipynb)].
+* MNIST image classification with Swin Transformers [[link](https://github.com/yingkaisha/keras-vision-transformer/blob/main/examples/Swin_Transformer_MNIST.ipynb)]
+* Oxford IIIT Pet image Segmentation with Swin-UNET [[link](https://github.com/yingkaisha/keras-vision-transformer/blob/main/examples/Swin_UNET_oxford_iiit.ipynb)]
 
 # Dependencies
 
