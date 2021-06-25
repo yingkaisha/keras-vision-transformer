@@ -6,6 +6,8 @@ import tensorflow as tf
 from tensorflow.keras.layers import Dense, Dropout, Conv2D, LayerNormalization
 from tensorflow.keras.activations import softmax
 
+from keras_vision_transformer.util_layers import drop_path
+
 def window_partition(x, window_size):
     
     # Get the static shape of the input tensor
@@ -75,19 +77,19 @@ class WindowAttention(tf.keras.layers.Layer):
         head_dim = dim // num_heads
         self.scale = qk_scale or head_dim ** -0.5 # query scaling factor
         
-        self.name = name
+        self.prefix = name
         
         # Layers
-        self.qkv = Dense(dim * 3, use_bias=qkv_bias, name='{}_attn_qkv'.format(self.name))
+        self.qkv = Dense(dim * 3, use_bias=qkv_bias, name='{}_attn_qkv'.format(self.prefix))
         self.attn_drop = Dropout(attn_drop)
-        self.proj = Dense(dim, name='{}_attn_proj'.format(self.name))
+        self.proj = Dense(dim, name='{}_attn_proj'.format(self.prefix))
         self.proj_drop = Dropout(proj_drop)
 
     def build(self, input_shape):
         
         # zero initialization
         num_window_elements = (2*self.window_size[0] - 1) * (2*self.window_size[1] - 1)
-        self.relative_position_bias_table = self.add_weight('{}_attn_pos'.format(self.name),
+        self.relative_position_bias_table = self.add_weight('{}_attn_pos'.format(self.prefix),
                                                             shape=(num_window_elements, self.num_heads),
                                                             initializer=tf.initializers.Zeros(), trainable=True)
         
@@ -106,7 +108,7 @@ class WindowAttention(tf.keras.layers.Layer):
         
         # convert to the tf variable
         self.relative_position_index = tf.Variable(
-            initial_value=tf.convert_to_tensor(relative_position_index), trainable=False, name='{}_attn_pos_ind'.format(self.name))
+            initial_value=tf.convert_to_tensor(relative_position_index), trainable=False, name='{}_attn_pos_ind'.format(self.prefix))
         
         self.built = True
 
@@ -162,7 +164,7 @@ class WindowAttention(tf.keras.layers.Layer):
         return x_qkv
 
 class SwinTransformerBlock(tf.keras.layers.Layer):
-    def __init__(self, dim, num_patch, num_heads, window_size=7, shift_size=0, mlp_num=1024,
+    def __init__(self, dim, num_patch, num_heads, window_size=7, shift_size=0, num_mlp=1024,
                  qkv_bias=True, qk_scale=None, mlp_drop=0, attn_drop=0, proj_drop=0, drop_path_prob=0, name=''):
         super().__init__()
         
@@ -171,16 +173,16 @@ class SwinTransformerBlock(tf.keras.layers.Layer):
         self.num_heads = num_heads # number of attention heads
         self.window_size = window_size # size of window
         self.shift_size = shift_size # size of window shift
-        self.mlp_num = mlp_num # number of MLP nodes
-        self.name = name
+        self.num_mlp = num_mlp # number of MLP nodes
+        self.prefix = name
         
         # Layers
-        self.norm1 = LayerNormalization(epsilon=1e-5, name='{}_norm1'.format(self.name))
+        self.norm1 = LayerNormalization(epsilon=1e-5, name='{}_norm1'.format(self.prefix))
         self.attn = WindowAttention(dim, window_size=(self.window_size, self.window_size), num_heads=num_heads,
-                                    qkv_bias=qkv_bias, qk_scale=qk_scale, attn_drop=attn_drop, proj_drop=proj_drop, name=self.name)
-        self.drop_path = DropPath(drop_path_prob)
-        self.norm2 = LayerNormalization(epsilon=1e-5, name='{}_norm2'.format(self.name))
-        self.mlp = Mlp([mlp_num, dim], drop=mlp_drop, name=self.name)
+                                    qkv_bias=qkv_bias, qk_scale=qk_scale, attn_drop=attn_drop, proj_drop=proj_drop, name=self.prefix)
+        self.drop_path = drop_path(drop_path_prob)
+        self.norm2 = LayerNormalization(epsilon=1e-5, name='{}_norm2'.format(self.prefix))
+        self.mlp = Mlp([num_mlp, dim], drop=mlp_drop, name=self.prefix)
         
         # Assertions
         assert 0 <= self.shift_size, 'shift_size >= 0 is required'
@@ -215,7 +217,7 @@ class SwinTransformerBlock(tf.keras.layers.Layer):
             attn_mask = tf.expand_dims(mask_windows, axis=1) - tf.expand_dims(mask_windows, axis=2)
             attn_mask = tf.where(attn_mask != 0, -100.0, attn_mask)
             attn_mask = tf.where(attn_mask == 0, 0.0, attn_mask)
-            self.attn_mask = tf.Variable(initial_value=attn_mask, trainable=False, name='{}_attn_mask'.format(self.name))
+            self.attn_mask = tf.Variable(initial_value=attn_mask, trainable=False, name='{}_attn_mask'.format(self.prefix))
         else:
             self.attn_mask = None
 
@@ -261,7 +263,7 @@ class SwinTransformerBlock(tf.keras.layers.Layer):
             x = shifted_x
             
         # Convert back to the patch sequence
-        x = tf.reshape(x, shape=(-1, H * W, C))
+        x = tf.reshape(x, shape=(-1, H*W, C))
 
         # Drop-path
         ## if drop_path_prob = 0, it will not drop

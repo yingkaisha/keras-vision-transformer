@@ -1,6 +1,8 @@
 
+from __future__ import absolute_import
+
 import tensorflow as tf
-from tensorflow.leras.layers import Layer
+from tensorflow.keras.layers import Layer
 
 def drop_path_(inputs, drop_prob, is_training):
     
@@ -21,7 +23,7 @@ def drop_path_(inputs, drop_prob, is_training):
     output = tf.math.divide(inputs, keep_prob) * path_mask
     return output
 
-class DropPath(Layer):
+class drop_path(Layer):
     def __init__(self, drop_prob=None):
         super().__init__()
         self.drop_prob = drop_prob
