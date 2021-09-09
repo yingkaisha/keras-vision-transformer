@@ -4,7 +4,7 @@ This repository contains the `tensorflow.keras` implementation of the Swin Trans
 
 * Liu, Z., Lin, Y., Cao, Y., Hu, H., Wei, Y., Zhang, Z., Lin, S. and Guo, B., 2021. Swin transformer: Hierarchical vision transformer using shifted windows. arXiv preprint arXiv:2103.14030. https://arxiv.org/abs/2103.14030.
 
-* Cao, H., Wang, Y., Chen, J., Jiang, D., Zhang, X., Tian, Q. and Wang, M., 2021. Swin-Unet: Unet-like Pure Transformer for Medical Image Segmentation. arXiv preprint arXiv:2105.05537.
+* Hu, C., Wang, Y., Chen, J., Jiang, D., Zhang, X., Tian, Q. and Wang, M., 2021. Swin-Unet: Unet-like Pure Transformer for Medical Image Segmentation. arXiv preprint arXiv:2105.05537.
 
 # Notebooks
 
@@ -19,7 +19,7 @@ Note: the Swin-UNET implementation is experimental
 
 # Overview
 
-Swin Transformers are Transformer-based computer vision models that feature shifted window-based self-attention. Compared to other vision transformer variants that compute embedded patches (i.e., tokens) globally, the Swin Transformer computes a subset of tokens through non-overlapping windows that are alternatively shifted within Transformer blocks. This mechanism makes Swin Transformers more suitable for processing high-resolution images. Swin Transformers are found effective in image classification, object detection, and semantic segmentation problems.
+Swin Transformers are Transformer-based computer vision models that feature self-attention with shift-windows. Compared to other vision transformer variants, which compute embedded patches (tokens) globally, the Swin Transformer computes token subsets through non-overlapping windows that are alternatively shifted within Transformer blocks. This mechanism makes Swin Transformers more suitable for processing high-resolution images. Swin Transformers have shown effectiveness in image classification, object detection, and semantic segmentation problems.
 
 # Contact
 
