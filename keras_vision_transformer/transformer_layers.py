@@ -34,7 +34,7 @@ class patch_extract(Layer):
     def __init__(self, patch_size):
         super(patch_extract, self).__init__()
         self.patch_size_x = patch_size[0]
-        self.patch_size_y = patch_size[0]
+        self.patch_size_y = patch_size[1]
         
     def call(self, images):
         
@@ -47,9 +47,10 @@ class patch_extract(Layer):
         # patches.shape = (num_sample, patch_num, patch_num, patch_size*channel)
         
         patch_dim = patches.shape[-1]
-        patch_num = patches.shape[1]
-        patches = tf.reshape(patches, (batch_size, patch_num*patch_num, patch_dim))
-        # patches.shape = (num_sample, patch_num*patch_num, patch_size*channel)
+        patch_num_x = patches.shape[1]
+        patch_num_y = patches.shape[2]
+        patches = tf.reshape(patches, (batch_size, patch_num_x*patch_num_y, patch_dim))
+        # patches.shape = (num_sample, patch_num_x*patch_num_y, patch_size*channel)
         
         return patches
     
